@@ -47,18 +47,21 @@ export const WalletConnector: React.FC = () => {
       provider: 'freighter' as const,
       isInstalled: typeof window !== 'undefined' && !!(window as any).freighterApi,
       icon: '🚀',
+      description: 'Browser extension',
     },
     {
-      name: 'Lobstr Vault',
+      name: 'LOBSTR',
       provider: 'lobstr' as const,
-      isInstalled: typeof window !== 'undefined' && !!(window as any).lobstrVault,
+      isInstalled: typeof window !== 'undefined' && (!!(window as any).lobstrVault || !!(window as any).lobstr),
       icon: '🦞',
+      description: 'Mobile app or Vault extension',
     },
     {
       name: 'Albedo',
       provider: 'albedo' as const,
       isInstalled: typeof window !== 'undefined' && !!(window as any).albedo,
       icon: '⭐',
+      description: 'Web-based wallet',
     },
   ]
 
@@ -164,7 +167,10 @@ export const WalletConnector: React.FC = () => {
                         <div>
                           <p className="font-semibold text-gray-900 dark:text-white">{wallet.name}</p>
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {wallet.isInstalled ? 'Ready to connect' : 'Not installed'}
+                            {wallet.description}
+                          </p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                            {wallet.isInstalled ? '✓ Ready to connect' : '✗ Not installed'}
                           </p>
                         </div>
                       </div>
@@ -181,7 +187,7 @@ export const WalletConnector: React.FC = () => {
               <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                 <p className="text-xs text-blue-800 dark:text-blue-200">
                   <strong>Don't have a wallet?</strong><br />
-                  Install <a href="https://freighter.app" target="_blank" rel="noopener noreferrer" className="underline">Freighter</a> or <a href="https://vault.lobstr.co" target="_blank" rel="noopener noreferrer" className="underline">Lobstr Vault</a>
+                  Install <a href="https://freighter.app" target="_blank" rel="noopener noreferrer" className="underline">Freighter</a>, <a href="https://lobstr.co" target="_blank" rel="noopener noreferrer" className="underline">LOBSTR</a>, or <a href="https://vault.lobstr.co" target="_blank" rel="noopener noreferrer" className="underline">Lobstr Vault</a>
                 </p>
               </div>
             </div>

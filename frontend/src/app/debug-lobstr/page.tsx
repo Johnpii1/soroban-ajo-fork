@@ -12,6 +12,7 @@ export default function DebugLobstrPage() {
     const info: any = {
       hasWindow: typeof window !== 'undefined',
       hasLobstrVault: typeof window !== 'undefined' && !!(window as any).lobstrVault,
+      hasLobstr: typeof window !== 'undefined' && !!(window as any).lobstr,
       hasFreighter: typeof window !== 'undefined' && !!(window as any).freighterApi,
       hasAlbedo: typeof window !== 'undefined' && !!(window as any).albedo,
       userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'N/A',
@@ -24,6 +25,12 @@ export default function DebugLobstrPage() {
     if (info.hasLobstrVault) {
       const vault = (window as any).lobstrVault;
       info.lobstrVaultMethods = Object.keys(vault).filter(key => typeof vault[key] === 'function');
+    }
+
+    // Check for regular LOBSTR methods
+    if (info.hasLobstr) {
+      const lobstr = (window as any).lobstr;
+      info.lobstrMethods = Object.keys(lobstr).filter(key => typeof lobstr[key] === 'function');
     }
 
     setDebugInfo(info);
@@ -40,21 +47,24 @@ export default function DebugLobstrPage() {
       }
 
       const lobstrVault = (window as any).lobstrVault;
+      const lobstr = (window as any).lobstr;
+      const wallet = lobstrVault || lobstr;
 
-      if (!lobstrVault) {
-        setTestResult('❌ Lobstr Vault not detected. Please install the Lobstr Vault extension from the Chrome Web Store.');
+      if (!wallet) {
+        setTestResult('❌ LOBSTR wallet not detected.\n\nPlease install:\n• LOBSTR mobile/desktop app, OR\n• Lobstr Vault browser extension\n\nThen refresh this page.');
         return;
       }
 
-      setTestResult('✅ Lobstr Vault detected! Attempting to get public key...');
+      const walletType = lobstrVault ? 'Lobstr Vault' : 'LOBSTR Wallet';
+      setTestResult(`✅ ${walletType} detected! Attempting to get public key...`);
 
       // Try to get public key
-      const publicKey = await lobstrVault.getPublicKey();
+      const publicKey = await wallet.getPublicKey();
 
       if (publicKey) {
-        setTestResult(`✅ Success! Connected to Lobstr Vault\n\nPublic Key: ${publicKey}\n\nYou can now use Lobstr with Ajo!`);
+        setTestResult(`✅ Success! Connected to ${walletType}\n\nPublic Key: ${publicKey}\n\nYou can now use LOBSTR with Ajo!`);
       } else {
-        setTestResult('❌ Failed to get public key. Please make sure you have set up your Lobstr Vault account.');
+        setTestResult(`❌ Failed to get public key from ${walletType}. Please make sure you have set up your account.`);
       }
     } catch (error: any) {
       setTestResult(`❌ Error: ${error.message || 'Unknown error'}\n\nPlease make sure:\n1. Lobstr Vault extension is installed\n2. You have created a vault account\n3. You have approved the connection request`);
@@ -84,8 +94,14 @@ export default function DebugLobstrPage() {
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600 dark:text-gray-400">Lobstr Vault Detected:</span>
-              <span className={debugInfo.hasLobstrVault ? 'text-green-600' : 'text-red-600'}>
-                {debugInfo.hasLobstrVault ? '✅ Yes' : '❌ No'}
+              <span className={debugInfo.hasLobstrVault ? 'text-green-600' : 'text-gray-400'}>
+                {debugInfo.hasLobstrVault ? '✅ Yes' : '⚪ No'}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600 dark:text-gray-400">LOBSTR Wallet Detected:</span>
+              <span className={debugInfo.hasLobstr ? 'text-green-600' : 'text-gray-400'}>
+                {debugInfo.hasLobstr ? '✅ Yes' : '⚪ No'}
               </span>
             </div>
             <div className="flex justify-between">
@@ -115,6 +131,17 @@ export default function DebugLobstrPage() {
               </h3>
               <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded text-xs font-mono">
                 {debugInfo.lobstrVaultMethods.join(', ')}
+              </div>
+            </div>
+          )}
+
+          {debugInfo.lobstrMethods && (
+            <div className="mt-4">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                Available LOBSTR Wallet Methods:
+              </h3>
+              <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded text-xs font-mono">
+                {debugInfo.lobstrMethods.join(', ')}
               </div>
             </div>
           )}

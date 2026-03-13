@@ -68,6 +68,15 @@ export interface LobstrVaultAPI {
     getPublicKey: () => Promise<string>;
     signTransaction: (xdr: string, opts?: { network?: string }) => Promise<string>;
     isConnected?: () => Promise<boolean>;
+    getNetwork?: () => Promise<string>;
+}
+
+// Regular LOBSTR wallet API (can be injected by desktop app or extension)
+export interface LobstrAPI {
+    getPublicKey: () => Promise<string>;
+    signTransaction: (xdr: string, opts?: { network?: string }) => Promise<string>;
+    isConnected?: () => Promise<boolean>;
+    getNetwork?: () => Promise<string>;
 }
 
 declare global {
@@ -77,5 +86,6 @@ declare global {
         freighter?: FreighterApi;
         albedo?: AlbedoAPI;
         lobstrVault?: LobstrVaultAPI;
+        lobstr?: LobstrAPI;
     }
 }

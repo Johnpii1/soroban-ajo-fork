@@ -92,34 +92,51 @@ export function handleLobstrCallback(): LobstrConnectionResult | null {
 }
 
 /**
- * Alternative: Use Lobstr Vault for desktop users
+ * Alternative: Use Lobstr Vault for desktop users OR regular LOBSTR wallet
  * Lobstr Vault is a browser extension similar to Freighter
+ * Regular LOBSTR can also inject a wallet API
  */
 export async function connectLobstrVault(): Promise<LobstrConnectionResult> {
   // Check if Lobstr Vault extension is installed
   const lobstrVault = (window as any).lobstrVault
+  // Check if regular LOBSTR wallet is installed
+  const lobstr = (window as any).lobstr
   
-  if (!lobstrVault) {
+  const wallet = lobstrVault || lobstr
+  
+  if (!wallet) {
     throw new Error(
-      'Lobstr Vault extension not found. Please install it from the Chrome Web Store or use Lobstr mobile app.'
+      'LOBSTR wallet not found. Please install LOBSTR app, Lobstr Vault extension, or use Freighter wallet.'
     )
   }
   
   try {
-    // Request public key from Lobstr Vault
-    const address = await lobstrVault.getPublicKey()
+    // Request public key from LOBSTR wallet
+    const address = await wallet.getPublicKey()
     
     if (!address) {
-      throw new Error('Failed to get address from Lobstr Vault')
+      throw new Error('Failed to get address from LOBSTR wallet')
     }
     
-    // Get network (Lobstr Vault typically uses mainnet)
-    const network: StellarNetwork = 'mainnet'
+    // Get network (LOBSTR typically uses mainnet, but can be configured)
+    let network: StellarNetwork = 'mainnet'
+    
+    // Try to get network details if available
+    if (wallet.getNetwork) {
+      try {
+        const networkName = await wallet.getNetwork()
+        if (networkName && networkName.toLowerCase().includes('test')) {
+          network = 'testnet'
+        }
+      } catch {
+        // Ignore network detection errors, use default
+      }
+    }
     
     return { address, network }
   } catch (error) {
     throw new Error(
-      `Lobstr Vault connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      `LOBSTR wallet connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`
     )
   }
 }
