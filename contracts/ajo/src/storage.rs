@@ -42,6 +42,10 @@ pub enum StorageKey {
     /// Join request for a group.
     /// Stored in persistent storage under `("REQUEST", group_id, requester)`.
     JoinRequest(u64, Address),
+
+    /// Partial contribution tracking for a member in a specific cycle.
+    /// Stored in persistent storage under `("PARTIAL", group_id, cycle, member)`.
+    PartialContribution(u64, u32, Address),
 }
 
 impl StorageKey {
@@ -66,6 +70,7 @@ impl StorageKey {
             StorageKey::GroupMetadata(_) => symbol_short!("METADATA"),
             StorageKey::Invitation(_, _) => symbol_short!("INVITE"),
             StorageKey::JoinRequest(_, _) => symbol_short!("REQUEST"),
+            StorageKey::PartialContribution(_, _, _) => symbol_short!("PARTIAL"),
         }
     }
 }
@@ -406,4 +411,63 @@ pub fn has_join_request(env: &Env, group_id: u64, requester: &Address) -> bool {
 pub fn remove_join_request(env: &Env, group_id: u64, requester: &Address) {
     let key = (symbol_short!("REQUEST"), group_id, requester);
     env.storage().persistent().remove(&key);
+}
+
+/// Stores a partial contribution record in persistent storage.
+///
+/// # Arguments
+/// * `env` - The contract environment
+/// * `group_id` - The group the contribution belongs to
+/// * `cycle` - The cycle number
+/// * `member` - The contributing member's address
+/// * `partial` - The partial contribution data to store
+pub fn store_partial_contribution(
+    env: &Env,
+    group_id: u64,
+    cycle: u32,
+    member: &Address,
+    partial: &crate::types::PartialContribution,
+) {
+    let key = (symbol_short!("PARTIAL"), group_id, cycle, member);
+    env.storage().persistent().set(&key, partial);
+}
+
+/// Retrieves a partial contribution record from persistent storage.
+///
+/// # Arguments
+/// * `env` - The contract environment
+/// * `group_id` - The group to check
+/// * `cycle` - The cycle number to check
+/// * `member` - The member address to check
+///
+/// # Returns
+/// `Some(PartialContribution)` if it exists, `None` otherwise
+pub fn get_partial_contribution(
+    env: &Env,
+    group_id: u64,
+    cycle: u32,
+    member: &Address,
+) -> Option<crate::types::PartialContribution> {
+    let key = (symbol_short!("PARTIAL"), group_id, cycle, member);
+    env.storage().persistent().get(&key)
+}
+
+/// Checks if a partial contribution record exists.
+///
+/// # Arguments
+/// * `env` - The contract environment
+/// * `group_id` - The group to check
+/// * `cycle` - The cycle number to check
+/// * `member` - The member address to check
+///
+/// # Returns
+/// `true` if record exists, `false` otherwise
+pub fn has_partial_contribution(
+    env: &Env,
+    group_id: u64,
+    cycle: u32,
+    member: &Address,
+) -> bool {
+    let key = (symbol_short!("PARTIAL"), group_id, cycle, member);
+    env.storage().persistent().has(&key)
 }

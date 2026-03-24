@@ -60,6 +60,27 @@ pub struct JoinRequest {
 /// Default invitation expiry duration (7 days in seconds).
 pub const DEFAULT_INVITATION_EXPIRY: u64 = 604800;
 
+/// Tracks partial contributions for a member in a specific cycle.
+/// Allows members to contribute in multiple smaller payments.
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct PartialContribution {
+    /// Address of the member making the contribution.
+    pub member: Address,
+    /// The group this contribution belongs to.
+    pub group_id: u64,
+    /// The cycle number this contribution is for.
+    pub cycle: u32,
+    /// Total amount contributed so far in this cycle.
+    pub total_contributed: i128,
+    /// Required contribution amount for this cycle.
+    pub required_amount: i128,
+    /// Whether the full contribution has been completed.
+    pub is_complete: bool,
+    /// Number of partial payments made.
+    pub payment_count: u32,
+}
+
 /// Represents an Ajo group configuration and state.
 ///
 /// An Ajo (also known as Esusu or Tontine) is a rotating savings group

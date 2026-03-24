@@ -4,8 +4,8 @@ use crate::errors::AjoError;
 use crate::events;
 use crate::storage;
 use crate::types::{
-    Group, GroupAccessType, GroupInvitation, GroupMetadata, GroupStatus, JoinRequest, RequestStatus,
-    DEFAULT_INVITATION_EXPIRY,
+    Group, GroupAccessType, GroupInvitation, GroupMetadata, GroupStatus, JoinRequest,
+    PartialContribution, RequestStatus, DEFAULT_INVITATION_EXPIRY,
 };
 use crate::utils;
 
@@ -915,5 +915,136 @@ impl AjoContract {
         requester: Address,
     ) -> Result<JoinRequest, AjoError> {
         storage::get_join_request(&env, group_id, &requester).ok_or(AjoError::JoinRequestNotFound)
+    }
+
+    /// Make a partial contribution to a group.
+    ///
+    /// Allows members to contribute in multiple smaller payments.
+    /// The contribution is automatically marked complete when the full amount is reached.
+    ///
+    /// # Arguments
+    /// * `env` - The Soroban contract environment
+    /// * `member` - Address making the contribution (must authenticate)
+    /// * `group_id` - The group to contribute to
+    /// * `amount` - Amount to contribute in this payment
+    ///
+    /// # Returns
+    /// `Ok(())` on successful partial contribution
+    ///
+    /// # Errors
+    /// * `GroupNotFound` - If the group does not exist
+    /// * `NotMember` - If the address is not a member
+    /// * `AlreadyContributed` - If already contributed the full amount this cycle
+    /// * `GroupComplete` - If the group has completed all cycles
+    /// * `ContributionAmountZero` - If amount is zero
+    /// * `ContributionAmountNegative` - If amount is negative
+    pub fn contribute_partial(
+        env: Env,
+        member: Address,
+        group_id: u64,
+        amount: i128,
+    ) -> Result<(), AjoError> {
+        // Validate amount
+        if amount <= 0 {
+            return Err(AjoError::ContributionAmountNegative);
+        }
+
+        // Require authentication
+        member.require_auth();
+
+        // Get group
+        let group = storage::get_group(&env, group_id).ok_or(AjoError::GroupNotFound)?;
+
+        // Check if group is complete
+        if group.is_complete {
+            return Err(AjoError::GroupComplete);
+        }
+
+        // Check if member
+        if !utils::is_member(&group.members, &member) {
+            return Err(AjoError::NotMember);
+        }
+
+        // Check if already fully contributed this cycle
+        if storage::has_contributed(&env, group_id, group.current_cycle, &member) {
+            return Err(AjoError::AlreadyContributed);
+        }
+
+        // Get or create partial contribution record
+        let mut partial = storage::get_partial_contribution(&env, group_id, group.current_cycle, &member)
+            .unwrap_or_else(|| PartialContribution {
+                member: member.clone(),
+                group_id,
+                cycle: group.current_cycle,
+                total_contributed: 0,
+                required_amount: group.contribution_amount,
+                is_complete: false,
+                payment_count: 0,
+            });
+
+        // Check if already complete
+        if partial.is_complete {
+            return Err(AjoError::AlreadyContributed);
+        }
+
+        // Calculate remaining amount
+        let remaining = partial.required_amount - partial.total_contributed;
+
+        // Prevent over-contribution
+        if amount > remaining {
+            return Err(AjoError::ContributionAmountNegative);
+        }
+
+        // Note: In production, token transfer would happen here
+        // For now, we simulate the transfer by updating state
+
+        // Update partial contribution
+        partial.total_contributed += amount;
+        partial.payment_count += 1;
+
+        // Check if fully contributed
+        if partial.total_contributed >= partial.required_amount {
+            partial.is_complete = true;
+            // Mark as fully contributed in the existing system
+            storage::store_contribution(&env, group_id, group.current_cycle, &member, true);
+        }
+
+        // Store updated partial contribution
+        storage::store_partial_contribution(&env, group_id, group.current_cycle, &member, &partial);
+
+        // Emit event
+        events::emit_partial_contribution(
+            &env,
+            group_id,
+            &member,
+            group.current_cycle,
+            amount,
+            partial.total_contributed,
+        );
+
+        Ok(())
+    }
+
+    /// Get partial contribution status for a member in a specific cycle.
+    ///
+    /// # Arguments
+    /// * `env` - The Soroban contract environment
+    /// * `group_id` - The group to check
+    /// * `cycle` - The cycle number to check
+    /// * `member` - The member address to check
+    ///
+    /// # Returns
+    /// The partial contribution data
+    ///
+    /// # Errors
+    /// * `GroupNotFound` - If no partial contribution record exists
+    pub fn get_partial_contribution_status(
+        env: Env,
+        group_id: u64,
+        cycle: u32,
+        member: Address,
+    ) -> Result<PartialContribution, AjoError> {
+        storage::get_partial_contribution(&env, group_id, cycle, &member)
+            .ok_or(AjoError::GroupNotFound)
     }
 }

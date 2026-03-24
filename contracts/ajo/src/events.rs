@@ -96,3 +96,16 @@ pub fn emit_join_approved(env: &Env, group_id: u64, requester: &Address) {
     let topics = (symbol_short!("req_app"), group_id);
     env.events().publish(topics, requester);
 }
+
+/// Emit an event when a partial contribution is made
+pub fn emit_partial_contribution(
+    env: &Env,
+    group_id: u64,
+    member: &Address,
+    cycle: u32,
+    amount: i128,
+    total_contributed: i128,
+) {
+    let topics = (symbol_short!("part_cont"), group_id, cycle);
+    env.events().publish(topics, (member, amount, total_contributed));
+}
