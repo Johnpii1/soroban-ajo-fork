@@ -10,8 +10,12 @@ import { groupsRouter } from './routes/groups'
 import { healthRouter } from './routes/health'
 import { webhooksRouter } from './routes/webhooks'
 import { authRouter } from './routes/auth'
+import { jobsRouter } from './routes/jobs'
 import { setupSwagger } from './swagger'
-import { apiLimiter, strictLimiter } from './middleware/ratelimiter'
+import { apiLimiter, strictLimiter } from './middleware/rateLimiter'
+// Import queue and job modules
+import { initializeQueues } from './queues'
+import { startJobProcessors } from './jobs'
 
 dotenv.config()
 
@@ -37,13 +41,19 @@ app.use('/health', healthRouter)
 app.use('/api/auth', strictLimiter, authRouter)
 app.use('/api/groups', groupsRouter)
 app.use('/api/webhooks', strictLimiter, webhooksRouter)
+app.use('/jobs', jobsRouter)
 
 // Error handling
 app.use(errorHandler)
 
+// Initialize queues and workers
+initializeQueues()
+startJobProcessors()
+
 // Start server
 app.listen(PORT, () => {
   logger.info(`Server started on port ${PORT}`, { env: process.env.NODE_ENV || 'development' })
+  logger.info('Job queue system initialized and ready')
 })
 
 export default app
