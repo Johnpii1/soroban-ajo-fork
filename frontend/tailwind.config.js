@@ -132,6 +132,8 @@ darkMode: 'class',
         'glow-sm': '0 0 15px -3px rgba(99, 102, 241, 0.15)',
         'glow-md': '0 0 25px -5px rgba(99, 102, 241, 0.2)',
         'glow-lg': '0 0 35px -5px rgba(99, 102, 241, 0.25)',
+        'error-glow': '0 0 15px -3px rgba(239, 68, 68, 0.15)',
+        'success-glow': '0 0 15px -3px rgba(16, 185, 129, 0.15)',
         card: '0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04)',
         'card-hover': '0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04)',
         'card-active': '0 20px 40px -10px rgba(0, 0, 0, 0.1), 0 8px 16px -8px rgba(0, 0, 0, 0.06)',
@@ -162,6 +164,12 @@ darkMode: 'class',
         'pulse-soft': 'pulseSoft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         float: 'float 3s ease-in-out infinite',
         'spin-slow': 'spin 3s linear infinite',
+        // New micro-interaction animations
+        'ripple': 'ripple 600ms ease-out',
+        'shake': 'shake 0.3s ease-in-out',
+        'lift': 'lift 0.3s ease-out',
+        'slide-in-up': 'slideInUp 0.3s ease-out',
+        'bounce-in': 'bounceIn 0.5s ease-out',
       },
       keyframes: {
         fadeIn: {
@@ -203,6 +211,30 @@ darkMode: 'class',
         float: {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(-6px)' },
+        },
+        // New micro-interaction keyframes
+        ripple: {
+          '0%': { transform: 'scale(0)', opacity: '0.5' },
+          '100%': { transform: 'scale(4)', opacity: '0' },
+        },
+        shake: {
+          '0%, 100%': { transform: 'translateX(0)' },
+          '10%, 30%, 50%, 70%, 90%': { transform: 'translateX(-4px)' },
+          '20%, 40%, 60%, 80%': { transform: 'translateX(4px)' },
+        },
+        lift: {
+          '0%': { transform: 'translateY(0)' },
+          '100%': { transform: 'translateY(-4px)' },
+        },
+        slideInUp: {
+          '0%': { transform: 'translateY(-10px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        bounceIn: {
+          '0%': { transform: 'scale(0.3)', opacity: '0' },
+          '50%': { transform: 'scale(1.05)', opacity: '1' },
+          '70%': { transform: 'scale(0.9)' },
+          '100%': { transform: 'scale(1)' },
         },
       },
       transitionDuration: {
