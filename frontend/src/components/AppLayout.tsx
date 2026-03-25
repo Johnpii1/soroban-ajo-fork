@@ -37,14 +37,14 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-dark-bg-primary transition-colors duration-300">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+      <header className="bg-white dark:bg-dark-bg-secondary shadow-sm border-b border-gray-200 dark:border-dark-border sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <Link href="/" className="flex items-center gap-2">
-              <h1 className="text-2xl md:text-3xl font-bold text-blue-600">🪙 Ajo</h1>
-              <span className="hidden sm:inline text-gray-600 text-sm">Decentralized Savings</span>
+              <h1 className="text-2xl md:text-3xl font-bold text-blue-600 dark:text-indigo-400">🪙 Ajo</h1>
+              <span className="hidden sm:inline text-gray-600 dark:text-slate-400 text-sm">Decentralized Savings</span>
             </Link>
 
             <div className="flex items-center gap-3">
@@ -63,8 +63,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                   href={link.href}
                   className={`flex items-center gap-2 px-4 py-3 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
                     isActive
-                      ? 'border-blue-600 text-blue-600'
-                      : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                      ? 'border-blue-600 dark:border-indigo-400 text-blue-600 dark:text-indigo-400'
+                      : 'border-transparent text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100 hover:border-gray-300 dark:hover:border-slate-600'
                   }`}
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -87,25 +87,25 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       <main>{children}</main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-auto">
+      <footer className="bg-white dark:bg-dark-bg-secondary border-t border-gray-200 dark:border-dark-border mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-              <h3 className="font-bold text-gray-900 mb-3">Ajo</h3>
-              <p className="text-gray-600 text-sm">
+              <h3 className="font-bold text-gray-900 dark:text-slate-100 mb-3">Ajo</h3>
+              <p className="text-gray-600 dark:text-slate-400 text-sm">
                 Decentralized savings groups powered by Stellar blockchain.
               </p>
             </div>
             <div>
-              <h3 className="font-bold text-gray-900 mb-3">Resources</h3>
+              <h3 className="font-bold text-gray-900 dark:text-slate-100 mb-3">Resources</h3>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link href="/docs" className="text-gray-600 hover:text-blue-600">
+                  <Link href="/docs" className="text-gray-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-indigo-400">
                     Documentation
                   </Link>
                 </li>
                 <li>
-                  <Link href="/community" className="text-gray-600 hover:text-blue-600">
+                  <Link href="/community" className="text-gray-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-indigo-400">
                     Community
                   </Link>
                 </li>
@@ -114,7 +114,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                     href="https://stellar.org"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-gray-600 hover:text-blue-600"
+                    className="text-gray-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-indigo-400"
                   >
                     Stellar Network
                   </a>
@@ -122,14 +122,14 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               </ul>
             </div>
             <div>
-              <h3 className="font-bold text-gray-900 mb-3">Connect</h3>
+              <h3 className="font-bold text-gray-900 dark:text-slate-100 mb-3">Connect</h3>
               <ul className="space-y-2 text-sm">
                 <li>
                   <a
                     href="https://github.com"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-gray-600 hover:text-blue-600"
+                    className="text-gray-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-indigo-400"
                   >
                     GitHub
                   </a>
@@ -139,7 +139,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                     href="https://twitter.com"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-gray-600 hover:text-blue-600"
+                    className="text-gray-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-indigo-400"
                   >
                     Twitter
                   </a>
@@ -149,7 +149,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                     href="https://discord.com"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-gray-600 hover:text-blue-600"
+                    className="text-gray-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-indigo-400"
                   >
                     Discord
                   </a>
@@ -157,7 +157,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               </ul>
             </div>
           </div>
-          <div className="mt-8 pt-8 border-t border-gray-200 text-center text-sm text-gray-600">
+          <div className="mt-8 pt-8 border-t border-gray-200 dark:border-dark-border text-center text-sm text-gray-600 dark:text-slate-400">
             <p>&copy; {new Date().getFullYear()} Ajo. All rights reserved.</p>
           </div>
         </div>

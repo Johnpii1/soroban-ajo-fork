@@ -17,16 +17,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => 
   ]
 
   return (
-    <aside className="hidden lg:block w-64 bg-white shadow-sm h-full">
+    <aside className="hidden lg:block w-64 bg-white dark:bg-dark-bg-secondary shadow-sm border-r border-gray-200 dark:border-dark-border h-full">
       <nav className="p-4 space-y-2">
         {menuItems.map((item) => (
           <button
             key={item.id}
             onClick={() => onNavigate?.(item.id)}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition ${
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
               currentView === item.id
-                ? 'bg-blue-50 text-blue-600 font-medium'
-                : 'text-gray-700 hover:bg-gray-50'
+                ? 'bg-blue-50 dark:bg-indigo-900/30 text-blue-600 dark:text-indigo-400 font-medium'
+                : 'text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700/50'
             }`}
           >
             <span className="text-xl">{item.icon}</span>

@@ -75,6 +75,20 @@ darkMode: 'class',
         foreground: 'var(--color-foreground)',
         muted: 'var(--color-muted)',
         border: 'var(--color-border)',
+        // Issue #321: dark mode color tokens
+        dark: {
+          bg: {
+            primary: '#0f0f1e',
+            secondary: '#1a1a2e',
+            tertiary: '#25253e',
+          },
+          text: {
+            primary: '#ffffff',
+            secondary: 'rgba(255,255,255,0.7)',
+            muted: 'rgba(255,255,255,0.45)',
+          },
+          border: 'rgba(255,255,255,0.1)',
+        },
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
