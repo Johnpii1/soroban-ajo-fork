@@ -1,6 +1,5 @@
 use soroban_sdk::{symbol_short, Address, Env, Symbol, Vec};
 
-
 /// Logical storage key categories used by the Ajo contract.
 ///
 /// Soroban storage uses raw key values; this enum documents the naming
@@ -497,7 +496,11 @@ pub fn store_refund_vote(
 ///
 /// # Returns
 /// `Some(RefundVote)` if the member has voted, `None` otherwise
-pub fn get_refund_vote(env: &Env, group_id: u64, member: &Address) -> Option<crate::types::RefundVote> {
+pub fn get_refund_vote(
+    env: &Env,
+    group_id: u64,
+    member: &Address,
+) -> Option<crate::types::RefundVote> {
     let key = (symbol_short!("REFVOTE"), group_id, member);
     env.storage().persistent().get(&key)
 }
@@ -626,22 +629,13 @@ pub fn has_voted_for_payout(env: &Env, group_id: u64, cycle: u32, voter: &Addres
 }
 
 /// Persists the determined [`PayoutOrder`](crate::types::PayoutOrder) for a cycle.
-pub fn store_payout_order(
-    env: &Env,
-    group_id: u64,
-    cycle: u32,
-    order: &crate::types::PayoutOrder,
-) {
+pub fn store_payout_order(env: &Env, group_id: u64, cycle: u32, order: &crate::types::PayoutOrder) {
     let key = (symbol_short!("PORDER"), group_id, cycle);
     env.storage().persistent().set(&key, order);
 }
 
 /// Retrieves the committed payout order for a cycle, if one has been recorded.
-pub fn get_payout_order(
-    env: &Env,
-    group_id: u64,
-    cycle: u32,
-) -> Option<crate::types::PayoutOrder> {
+pub fn get_payout_order(env: &Env, group_id: u64, cycle: u32) -> Option<crate::types::PayoutOrder> {
     let key = (symbol_short!("PORDER"), group_id, cycle);
     env.storage().persistent().get(&key)
 }
@@ -692,44 +686,62 @@ pub fn get_reminder_record(
     member: &Address,
 ) -> Option<crate::types::ReminderRecord> {
     let key = (symbol_short!("REMIND"), group_id, cycle, member);
+    env.storage().persistent().get(&key)
+}
 // ── Milestone & achievement storage ───────────────────────────────────────
 
 /// Stores group milestones list.
-pub fn store_group_milestones(env: &Env, group_id: u64, milestones: &Vec<crate::types::MilestoneRecord>) {
+pub fn store_group_milestones(
+    env: &Env,
+    group_id: u64,
+    milestones: &Vec<crate::types::MilestoneRecord>,
+) {
     let key = (symbol_short!("GMILE"), group_id);
     env.storage().persistent().set(&key, milestones);
 }
 
 /// Retrieves group milestones.
-pub fn get_group_milestones(env: &Env, group_id: u64) -> Option<Vec<crate::types::MilestoneRecord>> {
+pub fn get_group_milestones(
+    env: &Env,
+    group_id: u64,
+) -> Option<Vec<crate::types::MilestoneRecord>> {
     let key = (symbol_short!("GMILE"), group_id);
     env.storage().persistent().get(&key)
 }
 
 /// Adds a single milestone to a group's milestone list.
 pub fn add_group_milestone(env: &Env, group_id: u64, record: &crate::types::MilestoneRecord) {
-    let mut milestones = get_group_milestones(env, group_id)
-        .unwrap_or_else(|| Vec::new(env));
+    let mut milestones = get_group_milestones(env, group_id).unwrap_or_else(|| Vec::new(env));
     milestones.push_back(record.clone());
     store_group_milestones(env, group_id, &milestones);
 }
 
 /// Stores member achievements list.
-pub fn store_member_achievements(env: &Env, member: &Address, achievements: &Vec<crate::types::AchievementRecord>) {
+pub fn store_member_achievements(
+    env: &Env,
+    member: &Address,
+    achievements: &Vec<crate::types::AchievementRecord>,
+) {
     let key = (symbol_short!("MACHIEV"), member);
     env.storage().persistent().set(&key, achievements);
 }
 
 /// Retrieves member achievements.
-pub fn get_member_achievements(env: &Env, member: &Address) -> Option<Vec<crate::types::AchievementRecord>> {
+pub fn get_member_achievements(
+    env: &Env,
+    member: &Address,
+) -> Option<Vec<crate::types::AchievementRecord>> {
     let key = (symbol_short!("MACHIEV"), member);
     env.storage().persistent().get(&key)
 }
 
 /// Adds a single achievement to a member's list.
-pub fn add_member_achievement(env: &Env, member: &Address, record: &crate::types::AchievementRecord) {
-    let mut achievements = get_member_achievements(env, member)
-        .unwrap_or_else(|| Vec::new(env));
+pub fn add_member_achievement(
+    env: &Env,
+    member: &Address,
+    record: &crate::types::AchievementRecord,
+) {
+    let mut achievements = get_member_achievements(env, member).unwrap_or_else(|| Vec::new(env));
     achievements.push_back(record.clone());
     store_member_achievements(env, member, &achievements);
 }

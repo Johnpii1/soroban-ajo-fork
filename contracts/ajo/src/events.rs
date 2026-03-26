@@ -178,6 +178,7 @@ pub fn emit_reminder_triggered(
     let topics = (symbol_short!("remind"), group_id);
     env.events()
         .publish(topics, (member, reminder_type, deadline));
+}
 /// Emit an event when a group milestone is achieved
 pub fn emit_milestone_achieved(
     env: &Env,
@@ -198,4 +199,40 @@ pub fn emit_achievement_earned(
 ) {
     let topics = (symbol_short!("achieve"), group_id);
     env.events().publish(topics, (member, achievement));
+}
+
+/// Emit an event when an insurance claim is filed.`
+pub fn emit_claim_filed(env: &Env, claim_id: u64, group_id: u64, cycle: u32) {
+    let topics = (symbol_short!("clmfiled"), group_id, cycle);
+    env.events().publish(topics, claim_id);
+}
+ 
+/// Emit an event when automated claim verification produces a result.
+pub fn emit_claim_verification_result(
+    env: &Env,
+    claim_id: u64,
+    group_id: u64,
+    eligible: bool,
+    is_valid: bool,
+) {
+    let topics = (symbol_short!("clmverif"), group_id);
+    env.events().publish(topics, (claim_id, eligible, is_valid));
+}
+ 
+/// Emit an event when a claim is approved and a payout is issued.
+pub fn emit_claim_approved(
+    env: &Env,
+    claim_id: u64,
+    group_id: u64,
+    claimant: &Address,
+    amount: i128,
+) {
+    let topics = (symbol_short!("clmapprv"), group_id);
+    env.events().publish(topics, (claim_id, claimant, amount));
+}
+ 
+/// Emit an event when a claim is rejected (defaulter was found to have contributed).
+pub fn emit_claim_rejected(env: &Env, claim_id: u64, group_id: u64) {
+    let topics = (symbol_short!("clmrejct"), group_id);
+    env.events().publish(topics, claim_id);
 }

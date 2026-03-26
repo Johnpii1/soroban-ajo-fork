@@ -444,7 +444,7 @@ pub struct ReminderRecord {
     pub triggered_at: u64,
     /// The contribution deadline the reminder relates to.
     pub deadline: u64,
-/// Group-level milestones that track progress through the savings cycle.
+}/// Group-level milestones that track progress through the savings cycle.
 #[contracttype]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 #[repr(u32)]

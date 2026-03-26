@@ -382,7 +382,7 @@ fn check_zero_penalties(env: &Env, group: &Group) -> bool {
 /// Checks which member achievements have been newly earned.
 pub fn check_member_achievements(
     env: &Env,
-    member: &Address,
+    _member: &Address,
     stats: &crate::types::MemberStats,
 ) -> Vec<MemberAchievement> {
     let mut achievements = Vec::new(env);
