@@ -3,7 +3,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNotifications } from '@/hooks/useNotifications';
 import { subscribeToPushNotifications, unsubscribeFromPushNotifications, requestNotificationPermission } from '@/services/pushNotifications';
-import { Bell, Mail, Smartphone, Check } from 'lucide-react';
+import {
+  buildGoogleCalendarUrl,
+  buildIcsContent,
+  createContributionReminderEvent,
+  createPayoutScheduleEvents,
+  downloadIcsFile,
+} from '@/services/calendarIntegration';
+import { Bell, Calendar, Check, Download, Mail, Smartphone } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function NotificationPreferences() {
@@ -44,6 +51,30 @@ export default function NotificationPreferences() {
         toast.success('Push notifications disabled');
       }
     }
+  };
+
+  const handleAddGoogleCalendarReminder = () => {
+    const dueDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const event = createContributionReminderEvent('Family Savings Group', 100, dueDate);
+    const googleCalendarUrl = buildGoogleCalendarUrl(event);
+
+    window.open(googleCalendarUrl, '_blank', 'noopener,noreferrer');
+    toast.success('Opened Google Calendar with contribution reminder');
+  };
+
+  const handleDownloadPayoutSchedule = () => {
+    const firstPayoutDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    const payoutDates = [0, 1, 2].map((weekOffset) => {
+      const date = new Date(firstPayoutDate);
+      date.setDate(firstPayoutDate.getDate() + weekOffset * 7);
+      return date;
+    });
+
+    const events = createPayoutScheduleEvents('Family Savings Group', payoutDates);
+    const icsContent = buildIcsContent(events);
+
+    downloadIcsFile('ajo-payout-schedule.ics', icsContent);
+    toast.success('iCal payout schedule downloaded');
   };
 
   const togglePreference = (key: keyof typeof preferences) => {
@@ -180,6 +211,79 @@ export default function NotificationPreferences() {
                 />
               </label>
             ))}
+          </div>
+        </div>
+
+        {/* Calendar Integrations */}
+        <div className="p-4">
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
+            Calendar Integrations
+          </h4>
+
+          <div className="space-y-3">
+            <label className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
+                  <Calendar className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">
+                    Google Calendar reminders
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Open contribution reminders in Google Calendar
+                  </p>
+                </div>
+              </div>
+              <input
+                type="checkbox"
+                checked={preferences.googleCalendarReminders}
+                onChange={() => togglePreference('googleCalendarReminders')}
+                className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+              />
+            </label>
+
+            <label className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                  <Download className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">
+                    iCal payout schedule export
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Download payout timelines as an .ics file
+                  </p>
+                </div>
+              </div>
+              <input
+                type="checkbox"
+                checked={preferences.iCalPayoutSchedule}
+                onChange={() => togglePreference('iCalPayoutSchedule')}
+                className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+              />
+            </label>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
+              <button
+                onClick={handleAddGoogleCalendarReminder}
+                disabled={!preferences.googleCalendarReminders}
+                className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Calendar className="w-4 h-4" />
+                Add contribution reminder
+              </button>
+
+              <button
+                onClick={handleDownloadPayoutSchedule}
+                disabled={!preferences.iCalPayoutSchedule}
+                className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-orange-600 text-white text-sm font-medium hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Download className="w-4 h-4" />
+                Download payout schedule
+              </button>
+            </div>
           </div>
         </div>
       </div>
