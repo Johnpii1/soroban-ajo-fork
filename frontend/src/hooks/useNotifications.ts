@@ -23,6 +23,8 @@ export interface NotificationPreferences {
   memberJoined: boolean;
   cycleCompleted: boolean;
   announcements: boolean;
+  googleCalendarReminders: boolean;
+  iCalPayoutSchedule: boolean;
 }
 
 interface NotificationState {
@@ -50,6 +52,8 @@ const defaultPreferences: NotificationPreferences = {
   memberJoined: true,
   cycleCompleted: true,
   announcements: true,
+  googleCalendarReminders: true,
+  iCalPayoutSchedule: true,
 };
 
 export const useNotifications = create<NotificationState>()(
