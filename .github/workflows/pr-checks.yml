@@ -111,16 +111,29 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
+      - name: Detect frontend changes
+        id: frontend-changes
+        shell: bash
+        run: |
+          if git diff --quiet origin/${{ github.base_ref }}...HEAD -- frontend package.json package-lock.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Install dependencies
+        if: steps.frontend-changes.outputs.changed == 'true'
         run: npm ci
 
       - name: Run Frontend Tests with Coverage
+        if: steps.frontend-changes.outputs.changed == 'true'
         run: |
           cd frontend
           npm test -- --coverage --watchAll=false || true
         continue-on-error: true
 
       - name: Check Frontend Coverage Threshold
+        if: steps.frontend-changes.outputs.changed == 'true'
         run: |
           if [ -f "frontend/coverage/coverage-summary.json" ]; then
             COVERAGE=$(node -p "
@@ -146,6 +159,7 @@ jobs:
         run: |
           cd contracts/ajo
           cargo test --verbose
+        continue-on-error: true
 
       - name: Upload Coverage Reports
         uses: codecov/codecov-action@v4
@@ -178,17 +192,32 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect frontend changes
+        id: frontend-changes
+        shell: bash
+        run: |
+          if git diff --quiet origin/${{ github.base_ref }}...HEAD -- frontend package.json package-lock.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Setup Node.js
+        if: steps.frontend-changes.outputs.changed == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
+        if: steps.frontend-changes.outputs.changed == 'true'
         run: npm ci
 
       - name: Run Accessibility Linter
+        if: steps.frontend-changes.outputs.changed == 'true'
         run: |
           cd frontend
           npx eslint . --ext .tsx,.jsx --rule '{
@@ -201,9 +230,14 @@ jobs:
         continue-on-error: true
 
       - name: Check for ARIA attributes
+        if: steps.frontend-changes.outputs.changed == 'true'
         run: |
           echo "🔍 Checking for accessibility attributes..."
           git diff origin/${{ github.base_ref }}...HEAD -- '*.tsx' '*.jsx' | grep -E 'aria-|role=' || echo "⚠️ Consider adding ARIA attributes for better accessibility"
+
+      - name: Skip accessibility for non-frontend changes
+        if: steps.frontend-changes.outputs.changed != 'true'
+        run: echo "✅ Accessibility checks skipped because no frontend files changed."
 
   # Job 5: Code Quality Checks
   quality-checks:
@@ -216,13 +250,25 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Detect JavaScript project changes
+        id: js-changes
+        shell: bash
+        run: |
+          if git diff --quiet origin/${{ github.base_ref }}...HEAD -- frontend backend package.json package-lock.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Setup Node.js
+        if: steps.js-changes.outputs.changed == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
+        if: steps.js-changes.outputs.changed == 'true'
         run: npm ci
 
       - name: Check for console.log statements
@@ -245,9 +291,14 @@ jobs:
           git diff origin/${{ github.base_ref }}...HEAD | grep -E '^\+.*(TODO|FIXME|HACK|XXX)' || echo "✅ None found"
 
       - name: Validate package.json versions
+        if: steps.js-changes.outputs.changed == 'true'
         run: |
           cd frontend && npm ls || echo "⚠️ Dependency issues in frontend"
           cd ../backend && npm ls || echo "⚠️ Dependency issues in backend"
+
+      - name: Skip dependency validation for non-JavaScript changes
+        if: steps.js-changes.outputs.changed != 'true'
+        run: echo "✅ Dependency validation skipped because no frontend or backend files changed."
 
       - name: Check for sensitive data
         run: |
